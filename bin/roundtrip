@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require "roundtrip/cli"
+
+Roundtrip::CLI.start
