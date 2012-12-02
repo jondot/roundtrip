@@ -25,13 +25,13 @@ Roundtrip currently supports HTTP as its RPC mechanism. This means you
 can host it using your favorite battle-tested stack -- anything that can
 run a Rack application.
 
-$ git clone git://github.com/jondot/roundtrip.git
-$ cd roundtrip
-$ bundle
+    $ git clone git://github.com/jondot/roundtrip.git
+    $ cd roundtrip
+    $ bundle
 
 Now feel free to edit `config.ru` for Redis and Statsd configuration.
 
-$ bundle exec rackup
+    $ bundle exec rackup
 
 ### Install gem
 
@@ -39,7 +39,7 @@ You can install the `roundtrip` gem, and then use the web interface
 within your existing Rack applications (for example, in Rails, you can
 mount it).
 
-$ gem install roundtrip
+    $ gem install roundtrip
 
 
 ```ruby
