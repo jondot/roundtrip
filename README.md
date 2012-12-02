@@ -3,6 +3,9 @@
 Roundtrip is a business process tracking and measurement service
 especially useful for tracking distributed systems and services.
 
+<img
+src="https://github.com/jondot/roundtrip/blob/master/examples/roundtrip-schema.png" />
+
 With it, you can answer these questions, in real-time:
 
 * How is each part of my processing pipeline performing? How is the
