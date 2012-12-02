@@ -98,7 +98,8 @@ class Roundtrip::Web < Sinatra::Base
   end
 
   def must_exist!(thing)
-    halt 406, {:error => "Parameter `route` must be present."}.to_json unless thing && thing.strip != ""
+    # XXX say which param. accept :param => val hash
+    halt 406, {:error => "Parameter must be present."}.to_json unless thing && thing.strip != ""
   end
 end
 
