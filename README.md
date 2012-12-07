@@ -3,6 +3,12 @@
 Roundtrip is a business process tracking and measurement service
 especially useful for tracking distributed systems and services.
 
+
+For a simple and useful explanation, check out [this blog
+post](http://blog.paracode.com/2012/12/02/tracking-your-business/)
+before you start.
+
+
 <img src="https://github.com/jondot/roundtrip/raw/master/examples/roundtrip-schema.png" />
 
 With it, you can answer these questions, in real-time:
@@ -11,10 +17,6 @@ With it, you can answer these questions, in real-time:
 entire pipeline performing?
 * What out of my running transactions didn't end? isn't ending within X
 amount of time?
-
-For a simple and useful explanation, check out [this blog
-post](http://blog.paracode.com/2012/12/02/tracking-your-business/)
-before you start.
 
 
 ## Installation
