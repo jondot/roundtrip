@@ -12,13 +12,20 @@ module Roundtrip
 
     describe "#start" do
       it "should start" do
-        mock(Roundtrip::Trip).generate('prod'){ trip }
+        mock(Roundtrip::Trip).generate('prod', {}){ trip }
         store = Object.new
         mock(store).add(trip){true}
         core = Core.new(store)
         core.start('prod').must_equal(trip)
       end
-    end
+      it "should start with an explicit ID given it was supplied" do
+        mock(Roundtrip::Trip).generate('prod', {:id => 'id-xyz'}){ trip }
+        store = Object.new
+        mock(store).add(trip){true}
+        core = Core.new(store)
+        core.start('prod', :id => 'id-xyz').must_equal(trip)
+      end
+   end
 
     describe "#checkpoint" do
       it "should add a new checkpoint to a started trip" do
@@ -52,7 +59,7 @@ module Roundtrip
       it "should end the exact ID that has been started" do
         t = Time.now
         trip = Trip.new('key-1', 'prod', t)
-        mock(Roundtrip::Trip).generate('key-1'){ trip }
+        mock(Roundtrip::Trip).generate('key-1', {}){ trip }
         store = Object.new
         mock(store).add(trip){ true }
         mock(store).get(trip.id){ trip }
@@ -76,6 +83,39 @@ module Roundtrip
         core.pending('prod', 0).must_equal(pending)
       end
 
+    end
+
+    describe "#purge" do
+      it "should do nothing given no pending trips" do
+        store = Object.new
+        pending = []
+        mock(store).pending_trips('prod', 0){ pending }
+
+        core = Core.new(store)
+        core.purge('prod', 0).must_equal(pending)
+      end
+
+      it "should purge pending trips given staleness" do
+        store = Object.new
+        trip1 = Trip.new('key-1', 'prod', Time.now)
+        pending = [trip1]
+        mock(store).pending_trips('prod', 30){ pending }
+        mock(store).remove(trip1)
+
+        core = Core.new(store)
+        core.purge('prod', 30).must_equal(pending)
+      end
+
+      it "should purge all pending trips given no staleness" do
+        store = Object.new
+        trip1 = Trip.new('key-1', 'prod', Time.now)
+        pending = [trip1]
+        mock(store).pending_trips('prod', 0){ pending }
+        mock(store).remove(trip1)
+
+        core = Core.new(store)
+        core.purge('prod').must_equal(pending)
+      end
     end
   end
 end

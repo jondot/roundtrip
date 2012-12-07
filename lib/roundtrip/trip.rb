@@ -31,7 +31,7 @@ class Roundtrip::Trip
   end
   alias_method :eql?, :==
 
-  def self.generate(route)
-    new(SecureRandom.hex, route, Time.now)
+  def self.generate(route, opts={})
+    new(opts[:id] || SecureRandom.hex, route, Time.now)
   end
 end

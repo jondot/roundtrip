@@ -22,12 +22,14 @@ class Roundtrip::Web < Sinatra::Base
     set :core, Roundtrip::Core.new(store, stats)
   end
 
-  post '/:route/trips' do
+  post '/trips' do
     content_type :json
     route = params[:route]
     must_exist!(route)
 
-    trip = core.start(route)
+    id = params[:id]
+
+    trip = core.start(route, :id => id)
     # XXX add location: header
     json trip
   end
@@ -52,7 +54,20 @@ class Roundtrip::Web < Sinatra::Base
     json trip
   end
 
-  get '/:route/trips.json' do
+  delete '/trips' do
+    # XXX nastily un-dry. will fix later
+    content_type :json
+    route = params[:route]
+    older_than = params[:older_than_secs]
+
+    must_exist!(route)
+
+    res = core.purge(route, (older_than || 0).to_i)
+
+    json res
+  end
+
+  get '/trips.json' do
     content_type :json
     route = params[:route]
     older_than = params[:older_than_secs]
@@ -63,7 +78,7 @@ class Roundtrip::Web < Sinatra::Base
     json res
   end
 
-  get '/:route/trips.rss' do
+  get '/trips.rss' do
     content_type 'text/xml'
     route = params[:route]
     must_exist!(route)
@@ -89,6 +104,7 @@ class Roundtrip::Web < Sinatra::Base
     feed.to_xml
   end
 
+private
   def core
     settings.core
   end

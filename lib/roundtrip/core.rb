@@ -6,10 +6,10 @@ class Roundtrip::Core
     @metrics = metrics
   end
 
-  def start(route)
+  def start(route, opts={})
     must_be_present! route
 
-    t = Roundtrip::Trip.generate(route)
+    t = Roundtrip::Trip.generate(route, opts)
     @store.add(t)
     t
   end
@@ -28,10 +28,7 @@ class Roundtrip::Core
     must_be_present! id
 
     trip = @store.get(id)
-    if trip
-      @store.remove(trip)
-      @metrics.time(trip.route, 'end', msec(Time.now - trip.started_at))
-    end
+    end_trip(trip) if trip
     trip
   end
 
@@ -41,7 +38,18 @@ class Roundtrip::Core
     @store.pending_trips(route, older_than)
   end
 
+  def purge(route, older_than=0)
+    pending_trips = pending(route, older_than)
+    pending_trips.each{ |trip| end_trip(trip) }
+    pending_trips
+  end
+
 private
+  def end_trip(trip)
+    @store.remove(trip)
+    @metrics.time(trip.route, 'end', msec(Time.now - trip.started_at))
+  end
+
   def msec(floating_delta)
     (floating_delta*1000).floor
   end

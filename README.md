@@ -3,8 +3,7 @@
 Roundtrip is a business process tracking and measurement service
 especially useful for tracking distributed systems and services.
 
-<img
-src="https://github.com/jondot/roundtrip/raw/master/examples/roundtrip-schema.png" />
+<img src="https://github.com/jondot/roundtrip/raw/master/examples/roundtrip-schema.png" />
 
 With it, you can answer these questions, in real-time:
 
@@ -25,7 +24,7 @@ You have a couple of options of running Roundtrip.
 ### Clone and run
 
 Roundtrip currently supports HTTP as its RPC mechanism. This means you
-can host it using your favorite battle-tested stack -- anything that can
+can host it using your favorite battle-tested Ruby stack -- anything that can
 run a Rack application.
 
     $ git clone git://github.com/jondot/roundtrip.git
@@ -43,7 +42,6 @@ within your existing Rack applications (for example, in Rails, you can
 mount it).
 
     $ gem install roundtrip
-
 
 ```ruby
 require 'roundtrip'
@@ -65,11 +63,22 @@ HTTP library you feel comfertable with, within your code.
 For usage examples on various platforms check out `/examples`.
 
 
+Supply your own ID
+
 ```
-curl -XPOST http://localhost:9292/invoicing/trips
+curl -XPOST -d id=id-xyz&route=invoicing http://localhost:9292/trips
+{"id":"id-xyz","route":"invoicing","started_at":"2012-11-30T18:23:23.814014+02:00"}
+```
+
+Or let roundtrip generate one for you
+
+```
+curl -XPOST -d route=invoicing http://localhost:9292/trips
 {"id":"cf1999e8bfbd37963b1f92c527a8748e","route":"invoicing","started_at":"2012-11-30T18:23:23.814014+02:00"}
 ```
 
+
+Using the generated ID, lets add checkpoints:
 
 ```
 curl -XPATCH -dcheckpoint=generated.pdf http://localhost:9292/trips/cf1999e8bfbd37963b1f92c527a8748e
@@ -81,14 +90,14 @@ curl -XPATCH -dcheckpoint=emailed.customer http://localhost:9292/trips/cf1999e8b
 {"ok":true}
 ```
 
+Let's finish this off, don't forget to do something with the JSON you
+get back.
+
 ```
 curl -XDELETE http://localhost:9292/trips/cf1999e8bfbd37963b1f92c527a8748e
 {"id":"cf1999e8bfbd37963b1f92c527a8748e","route":"invoicing","started_at":"2012-11-30T18:54:20.098477+02:00","checkpoints":[["generated.pdf","2012-11-30T19:08:26.138140+02:00"],
 ["emailed.customer","2012-11-30T19:12:41.332270+02:00"]]}
 ```
-
-
-
 
 
 # Contributing
