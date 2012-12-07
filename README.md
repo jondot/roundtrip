@@ -23,6 +23,25 @@ amount of time?
 
 You have a couple of options of running Roundtrip.
 
+
+### Heroku
+
+Roundtrip comes with easy heroku integration.
+
+    $ git clone git://github.com/jondot/roundtrip.git
+    $ cd roundtrip
+    $ bundle install
+    $ heroku create
+
+Now configure Redis and Statsd through `config.ru` (with Heroku, you
+can give the free-tier RedisToGo a try).
+
+Next, push to your new Heroku app.
+
+    $ git add -f Gemfile.lock
+    $ git push heroku master
+    
+
 ### Clone and run
 
 Roundtrip currently supports HTTP as its RPC mechanism (CLI and 0mq are
