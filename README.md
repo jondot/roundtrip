@@ -39,6 +39,7 @@ can give the free-tier RedisToGo a try).
 Next, push to your new Heroku app.
 
     $ git add -f Gemfile.lock
+    $ git commit -am "this becomes a dedicated web project now"
     $ git push heroku master
     
 
