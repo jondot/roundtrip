@@ -25,7 +25,8 @@ You have a couple of options of running Roundtrip.
 
 ### Clone and run
 
-Roundtrip currently supports HTTP as its RPC mechanism. This means you
+Roundtrip currently supports HTTP as its RPC mechanism (CLI and 0mq are
+on the way). This means you
 can host it using your favorite battle-tested Ruby stack -- anything that can
 run a Rack application.
 
