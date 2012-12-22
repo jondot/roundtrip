@@ -18,7 +18,6 @@ class Roundtrip::Web < Sinatra::Base
   configure do
     store = Roundtrip::Store::Redis.new(Roundtrip.options)
     stats = Roundtrip::Metrics::Statsd.new(Roundtrip.options)
-
     set :core, Roundtrip::Core.new(store, stats)
   end
 
