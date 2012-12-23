@@ -22,7 +22,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "redis-namespace"
   gem.add_dependency "redis"
   gem.add_dependency "json"
-  gem.add_dependency "ratom"
   gem.add_dependency "thor"
   gem.add_dependency "statsd-ruby"
   gem.add_dependency "ffi-rzmq"

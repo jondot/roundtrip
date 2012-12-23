@@ -5,7 +5,6 @@ require 'roundtrip/metrics/statsd'
 
 require 'sinatra'
 require 'json'
-require 'atom'
 
 # XXX
 # put on heroku
@@ -77,6 +76,8 @@ class Roundtrip::Web < Sinatra::Base
     json res
   end
 
+
+
   get '/trips.rss' do
     content_type 'text/xml'
     route = params[:route]
@@ -85,22 +86,28 @@ class Roundtrip::Web < Sinatra::Base
     older_than = params[:older_than_secs]
 
     res = core.pending(route, (older_than || "0").to_i)
+    "broken"
 
-    feed = Atom::Feed.new do |f|
-      f.title = "Roundtrip #{route}"
-      f.links << Atom::Link.new(:href => "http://example.com/roundtrip/#{route}/")
 
-      res.each do |p|
-        f.entries << Atom::Entry.new do |e|
-          e.title = p.id
-          e.links << Atom::Link.new(:href => "http://example.com/#{p.id}")
-          e.id = p.id
-          e.updated = p.started_at.iso8601(6)
-          e.summary = p.started_at.iso8601(6)
-        end
-      end
-    end
-    feed.to_xml
+    #
+    # XXX ratom is using libxml-ruby which doesn't work with JRuby,
+    # use rabl/other instead.
+    #
+    # feed = Atom::Feed.new do |f|
+    #   f.title = "Roundtrip #{route}"
+    #   f.links << Atom::Link.new(:href => "http://example.com/roundtrip/#{route}/")
+
+    #   res.each do |p|
+    #     f.entries << Atom::Entry.new do |e|
+    #       e.title = p.id
+    #       e.links << Atom::Link.new(:href => "http://example.com/#{p.id}")
+    #       e.id = p.id
+    #       e.updated = p.started_at.iso8601(6)
+    #       e.summary = p.started_at.iso8601(6)
+    #     end
+    #   end
+    # end
+    # feed.to_xml
   end
 
 private

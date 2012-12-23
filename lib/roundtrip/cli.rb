@@ -22,18 +22,19 @@ class Roundtrip::CLI < Thor
   method_option :statsd
   method_option :port
   desc "raw --port --redis [localhost:123] --statsd [localhost:456]", "start listening for raw events on a dedicated socket"
-  def raw()
+  def raw
     require 'roundtrip/raw'
-    # XXX take in configuration
 
-    Roundtrip.options[:redis] = { :host  => 'localhost' }
-    Roundtrip.options[:statsd] = { :host => 'localhost', :port => 8125 }
+    redis_host, redis_port    = (options[:redis] || "localhost:6379").split(':')
+    statsd_host, statsd_port  = (options[:statsd] || "localhost:8125").split(':')
+    Roundtrip.options[:redis]  = { :host  => redis_host, :port => redis_port.to_i }
+    Roundtrip.options[:statsd] = { :host => statsd_host, :port => statsd_port.to_i }
 
     # XXX this bootstrapping code should really belong in some kind of bootstrap.rb
     # since web.rb already does this in `configure` block.
     store = Roundtrip::Store::Redis.new(Roundtrip.options)
     stats = Roundtrip::Metrics::Statsd.new(Roundtrip.options)
-    Roundtrip::Raw.new(Roundtrip::Core.new(store, stats)).listen!(5160)
+    Roundtrip::Raw.new(Roundtrip::Core.new(store, stats)).listen! (options[:port]||"5160").to_i
   end
 
 private 

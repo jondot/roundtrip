@@ -6,7 +6,7 @@ require 'json'
 class Roundtrip::Raw
   def initialize(core, opts={})
     @core = core
-    @debug = opts[:debug] || false
+    @debug = opts[:debug] || true
   end
 
   #
@@ -25,7 +25,7 @@ class Roundtrip::Raw
   def listen!(port)
     context = ZMQ::Context.new(1)
 
-    puts "Starting raw Roundtrip 0mq socket on port #{port}..."
+    puts "Roundtrip listening with a zeromq socket on port #{port}..."
     socket = context.socket(ZMQ::REP)
     socket.bind("tcp://*:#{port}")
 
@@ -38,16 +38,19 @@ class Roundtrip::Raw
     request = ''
     rc = socket.recv_string(request)
 
-    puts "got #{request}" if @debug
-
     # poor man's RPC
+
+    unless request && request.length > 2
+      socket.send_string({:error => "bad protocol: [#{request}]"}.to_json)
+      return
+    end
     action, params = ACTIONS[request[0]], request[1..-1].strip.split(/\s+/)
 
     begin
       resp = @core.send(action, *params)
       socket.send_string(resp.to_json)
     rescue
-      puts "error: #{$!}"
+      puts "error: #{$!}" if @debug
       socket.send_string({ :error => $! }.to_json)
     end
   end

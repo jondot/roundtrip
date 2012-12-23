@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'ffi-rzmq'
+require 'benchmark'
+
+
+def blast(count, blast_id)
+  context = ZMQ::Context.new(1)
+  socket = context.socket(ZMQ::REQ)
+  socket.connect("tcp://localhost:5160")
+  count.times do |id|
+    bucket = ''
+    tid = "#{blast_id}-#{id}"
+
+    socket.send_string("S zeromq.burnin.test #{tid}")
+    rc = socket.recv_string(bucket)
+
+    socket.send_string("U #{tid} checkpoint1")
+    rc = socket.recv_string(bucket)
+
+    socket.send_string("U #{tid} checkpoint2")
+    rc = socket.recv_string(bucket)
+
+    socket.send_string("U #{tid} checkpoint3")
+    rc = socket.recv_string(bucket)
+
+    socket.send_string("E #{tid}")
+    rc = socket.recv_string(bucket)
+
+    puts tid if (id % (count/10) == 0)
+  end
+  socket.close
+end
+
+# Best run this with JRuby
+#
+# baseline (see redis_store)
+#
+#   0.270000   0.010000   0.280000 (  0.268505)  ; baseline
+#
+Benchmark.bm do |x|
+  puts "single socket, quick"
+  # 0.120000   0.400000   0.520000 (  4.876783)
+  x.report do
+    blast(1000, "t1")
+  end
+  
+  puts "JVM warmup"
+  # 85.453000   0.000000  85.453000 ( 85.454000)
+  x.report do
+    blast(10000, "t1")
+  end
+  
+
+  if ARGV[0] == 'threads'
+    puts "threads"
+    # 67.923000   0.000000  67.923000 ( 67.923000)
+    x.report do
+      threads = []
+      10.times do |i|
+        threads << Thread.new do 
+          blast(1000, "test-th#{i}")
+        end
+      end
+      threads.each{|t| t.join}
+    end
+  end
+end
+
+
