@@ -82,15 +82,16 @@ require 'roundtrip/web'
 
 ### Running the raw zeromq receptor
 
-The benefits of using zeromq instead of HTTP is to avoid the overhead that typically
+The benefits of using zeromq instead of HTTP are to avoid the overhead that typically
 comes with HTTP, and provide a leaner, meaner way to input trip events
-to the system.
+into the system.
 
 On a modest VM, we can have a stable ~ 160 sessions/sec, where each session
-starts, has 3 checkpoint updates, and ends. See more, or run benchmarks
-yourself in `benchmark/zeromq_burnin`.
+starts, has 3 checkpoint updates, and ends. 
 
-Yet, the zeromq receptor haven't gotten much production time, so edges might
+See more, or run benchmarks yourself in `benchmark/zeromq_burnin`.
+
+Though it has been furiously tested, the zeromq receptor haven't gotten much production time, so edges might
 be rough (so far so good). Please feel free to report back any problems via Github
 Issues.
 
@@ -98,8 +99,7 @@ Issues.
 After installing roundtrip as a gem, you can run the zeromq receptor
 like so:
 
-    $ roundtrip raw --port 5160 --redis localhost:6379 --statsd
-localhost:8125
+    $ roundtrip raw --port 5160 --redis localhost:6379 --statsd localhost:8125
 
 The parameters provided above are the defaults that will be taken if you just
 run `roundtrip raw`.
@@ -150,13 +150,21 @@ curl -XDELETE http://localhost:9292/trips/cf1999e8bfbd37963b1f92c527a8748e
 ["emailed.customer","2012-11-30T19:12:41.332270+02:00"]]}
 ```
 
-# API Usage over raw TCP (zeromq)
+## API Usage over raw TCP (zeromq)
 
 
-Roundtrip uses a simple RPC/serialization protocol over zeromq.  
+Roundtrip implements an RPC/serialization protocol over zeromq, using
+the simple [REQ/REP](http://zguide.zeromq.org/page:all#Messaging-Patterns) pattern.
 
-All replies are serialized `json`. Be sure to `recv` after a `send`.
+All replies are serialized back as `json`. Though zeromq has better performance
+over HTTP, it is strongly advised to have prior experience with zeromq, and to
+use a reliable client.
 
+See `examples/zeromq_client` as a guideline for such a client supporting
+server crashes, and automatic retries.
+
+
+### Wire Protocol Description
 
 Start a trip
 
@@ -169,6 +177,9 @@ Update a trip with checkpoints
 End a trip
 
     E metric.name.foo
+
+
+### Using `zeromq_client`
 
 For a quick start check out the client in `examples/zeromq_client.rb`.
 

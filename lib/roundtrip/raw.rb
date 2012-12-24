@@ -6,7 +6,7 @@ require 'json'
 class Roundtrip::Raw
   def initialize(core, opts={})
     @core = core
-    @debug = opts[:debug] || true
+    @debug = opts[:debug] || false
   end
 
   #
@@ -36,17 +36,19 @@ class Roundtrip::Raw
 
   def select(socket)
     request = ''
-    rc = socket.recv_string(request)
 
+    rc = socket.recv_string(request)
     # poor man's RPC
 
     unless request && request.length > 2
+
       socket.send_string({:error => "bad protocol: [#{request}]"}.to_json)
       return
     end
     action, params = ACTIONS[request[0]], request[1..-1].strip.split(/\s+/)
 
     begin
+      puts "#{Time.now.iso8601} #{action}(#{params.join(', ')})" if @debug
       resp = @core.send(action, *params)
       socket.send_string(resp.to_json)
     rescue

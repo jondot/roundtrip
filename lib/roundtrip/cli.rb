@@ -34,7 +34,7 @@ class Roundtrip::CLI < Thor
     # since web.rb already does this in `configure` block.
     store = Roundtrip::Store::Redis.new(Roundtrip.options)
     stats = Roundtrip::Metrics::Statsd.new(Roundtrip.options)
-    Roundtrip::Raw.new(Roundtrip::Core.new(store, stats)).listen! (options[:port]||"5160").to_i
+    Roundtrip::Raw.new(Roundtrip::Core.new(store, stats)).listen!((options[:port]|| 5160).to_i)
   end
 
 private 

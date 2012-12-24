@@ -1,7 +1,7 @@
 require 'roundtrip'
 require 'roundtrip/store/redis'
 require 'roundtrip/metrics/statsd'
-
+require 'nokogiri'
 
 require 'sinatra'
 require 'json'
@@ -27,7 +27,7 @@ class Roundtrip::Web < Sinatra::Base
 
     id = params[:id]
 
-    trip = core.start(route, :id => id)
+    trip = core.start(route, id)
     # XXX add location: header
     json trip
   end
@@ -86,28 +86,27 @@ class Roundtrip::Web < Sinatra::Base
     older_than = params[:older_than_secs]
 
     res = core.pending(route, (older_than || "0").to_i)
-    "broken"
-
-
-    #
-    # XXX ratom is using libxml-ruby which doesn't work with JRuby,
-    # use rabl/other instead.
-    #
-    # feed = Atom::Feed.new do |f|
-    #   f.title = "Roundtrip #{route}"
-    #   f.links << Atom::Link.new(:href => "http://example.com/roundtrip/#{route}/")
-
-    #   res.each do |p|
-    #     f.entries << Atom::Entry.new do |e|
-    #       e.title = p.id
-    #       e.links << Atom::Link.new(:href => "http://example.com/#{p.id}")
-    #       e.id = p.id
-    #       e.updated = p.started_at.iso8601(6)
-    #       e.summary = p.started_at.iso8601(6)
-    #     end
-    #   end
-    # end
-    # feed.to_xml
+    builder = Nokogiri::XML::Builder.new do
+      root {
+        rss(:version => "2.0") {
+          channel {
+            title "Roundtrip: #{route}"
+            description "Roundtrip RSS feed for current trips on route #{route}"
+            link "https://github.com/jondot/roundtrip"
+            res.each do |p|
+              item {
+                title   p.id
+                guid    p.id
+                pubDate p.started_at.iso8601(6)
+                description p.started_at.iso8601(6)
+                link "http://example.com/#{p.id}"
+              }
+            end
+          }
+        }
+      }
+    end
+    builder.to_xml
   end
 
 private

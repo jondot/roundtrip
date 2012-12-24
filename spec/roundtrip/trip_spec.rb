@@ -7,10 +7,9 @@ module Roundtrip
   describe Trip do
     describe "::generate" do
       it "should generate with a random ID if none given" do
-        t1 = Trip.generate("foo")
-        t2 = Trip.generate("foo", nil)
-        t1.route.must_equal "foo"
-        t1.id.wont_equal t2.id
+        t = Trip.generate("foo", nil)
+        t.route.must_equal "foo"
+        t.id.wont_be_nil
       end
       it "should generate with the specified ID" do
         t = Trip.generate("foo", 'poo')
