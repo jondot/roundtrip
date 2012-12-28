@@ -22,10 +22,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency "redis-namespace"
   gem.add_dependency "redis"
   gem.add_dependency "json"
-  gem.add_dependency "ratom"
   gem.add_dependency "thor"
   gem.add_dependency "statsd-ruby"
+  gem.add_dependency "ffi-rzmq"
+  gem.add_dependency "nokogiri"
 
+  gem.add_development_dependency "minitest"
   gem.add_development_dependency "guard-minitest"
   gem.add_development_dependency "rr"
   gem.add_development_dependency "timecop"

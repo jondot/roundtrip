@@ -12,18 +12,18 @@ module Roundtrip
 
     describe "#start" do
       it "should start" do
-        mock(Roundtrip::Trip).generate('prod', {}){ trip }
+        mock(Roundtrip::Trip).generate('prod', nil){ trip }
         store = Object.new
         mock(store).add(trip){true}
         core = Core.new(store)
         core.start('prod').must_equal(trip)
       end
       it "should start with an explicit ID given it was supplied" do
-        mock(Roundtrip::Trip).generate('prod', {:id => 'id-xyz'}){ trip }
+        mock(Roundtrip::Trip).generate('prod', 'id-xyz'){ trip }
         store = Object.new
         mock(store).add(trip){true}
         core = Core.new(store)
-        core.start('prod', :id => 'id-xyz').must_equal(trip)
+        core.start('prod', 'id-xyz').must_equal(trip)
       end
    end
 
@@ -59,7 +59,7 @@ module Roundtrip
       it "should end the exact ID that has been started" do
         t = Time.now
         trip = Trip.new('key-1', 'prod', t)
-        mock(Roundtrip::Trip).generate('key-1', {}){ trip }
+        mock(Roundtrip::Trip).generate('key-1', nil){ trip }
         store = Object.new
         mock(store).add(trip){ true }
         mock(store).get(trip.id){ trip }

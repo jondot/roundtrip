@@ -21,7 +21,8 @@ amount of time?
 
 ## Installation
 
-You have a couple of options of running Roundtrip.
+You have a couple of options of running Roundtrip. It runs fine on MRI
+1.9.x, and JRuby in 1.9 compatibility mode.
 
 
 ### Heroku
@@ -45,8 +46,10 @@ Next, push to your new Heroku app.
 
 ### Clone and run
 
-Roundtrip currently supports HTTP as its RPC mechanism (CLI and 0mq are
-on the way). This means you
+Roundtrip currently supports HTTP and zeromq as its RPC mechanisms.
+
+
+For HTTP, this means you
 can host it using your favorite battle-tested Ruby stack -- anything that can
 run a Rack application.
 
@@ -77,8 +80,33 @@ require 'roundtrip/web'
 ```
 
 
+### Running the raw zeromq receptor
 
-## API Usage
+The benefits of using zeromq instead of HTTP are to avoid the overhead that typically
+comes with HTTP, and provide a leaner, meaner way to input trip events
+into the system.
+
+On a modest VM, we can have a stable ~ 160 sessions/sec, where each session
+starts, has 3 checkpoint updates, and ends. 
+
+See more, or run benchmarks yourself in `benchmark/zeromq_burnin`.
+
+Though it has been furiously tested, the zeromq receptor haven't gotten much production time, so edges might
+be rough (so far so good). Please feel free to report back any problems via Github
+Issues.
+
+
+After installing roundtrip as a gem, you can run the zeromq receptor
+like so:
+
+    $ roundtrip raw --port 5160 --redis localhost:6379 --statsd localhost:8125
+
+The parameters provided above are the defaults that will be taken if you just
+run `roundtrip raw`.
+
+
+
+## API Usage over HTTP
 
 I'll use `curl` just for illustration purposes. You should use what ever
 HTTP library you feel comfertable with, within your code.
@@ -122,6 +150,53 @@ curl -XDELETE http://localhost:9292/trips/cf1999e8bfbd37963b1f92c527a8748e
 ["emailed.customer","2012-11-30T19:12:41.332270+02:00"]]}
 ```
 
+## API Usage over raw TCP (zeromq)
+
+
+Roundtrip implements an RPC/serialization protocol over zeromq, using
+the simple [REQ/REP](http://zguide.zeromq.org/page:all#Messaging-Patterns) pattern.
+
+All replies are serialized back as `json`. Though zeromq has better performance
+over HTTP, it is strongly advised to have prior experience with zeromq, and to
+use a reliable client.
+
+See `examples/zeromq_client` as a guideline for such a client supporting
+server crashes, and automatic retries.
+
+
+### Wire Protocol Description
+
+Start a trip
+
+    S metric.name.foo i-have-an-id-optional
+
+Update a trip with checkpoints
+
+    U metric.name.foo checkpoint.name
+
+End a trip
+
+    E metric.name.foo
+
+
+### Using `zeromq_client`
+
+For a quick start check out the client in `examples/zeromq_client.rb`.
+
+Here is a typical session you can run with it from the command line (I
+have abbreviated long strings such as ID and timestamps for
+demonstration purposes).
+
+    $ ruby zeromq_client.rb S foo.metric
+    {"id":"04e...f2a","route":"foo.metric","started_at":"...","checkpoints":[]}
+
+    $ ruby zeromq_client.rb U 04e...f2a saved.pdf
+    ["saved.pdf","2012-12-23..."]
+
+    $ ruby zeromq_client.rb E 04e...f2a         
+    {"id":"04e...f2a","route":"foo.metric","started_at":"...","checkpoints":[["saved.pdf","..."]]}
+
+This represents a complete trip.
 
 # Contributing
 

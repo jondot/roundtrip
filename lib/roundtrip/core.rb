@@ -6,10 +6,10 @@ class Roundtrip::Core
     @metrics = metrics
   end
 
-  def start(route, opts={})
+  def start(route, id=nil)
     must_be_present! route
 
-    t = Roundtrip::Trip.generate(route, opts)
+    t = Roundtrip::Trip.generate(route, id)
     @store.add(t)
     t
   end
