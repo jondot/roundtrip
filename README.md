@@ -8,6 +8,13 @@ For a simple and useful explanation, check out [this blog
 post](http://blog.paracode.com/2012/12/02/tracking-your-business/)
 before you start.
 
+I recently watched and recommend watching [Ruby Monitoring State of the
+Union](http://www.youtube.com/watch?v=sp9OlDNAL9k) by @josephruscio, and
+felt Roundtrip handles one of the cases he mentioned to be not simple to
+cover (cross service/process metrics). A very interesting watch regardless.
+
+
+
 
 <img src="https://github.com/jondot/roundtrip/raw/master/examples/roundtrip-schema.png" />
 
